@@ -103,7 +103,7 @@ def download_file(filename):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=9900)
+    app.run(port=9900)
 
 
     # 参考：https://blog.csdn.net/baidu_36831253/article/details/78180093
