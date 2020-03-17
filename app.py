@@ -1,7 +1,8 @@
 #encoding:utf8
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, send_from_directory, url_for, redirect, flash
-import os, exceptions, shutil, glob
+import os, shutil, glob
+#import os, exceptions, shutil, glob
 
 
 app = Flask(__name__)
@@ -98,7 +99,7 @@ def download_file(filename):
     else:
         error = 'Download file not exists!'
         return redirect(url_for('api_upload', error=error, allfileset=allfileset))
-    raise exceptions.MyHttpNotFound('not found file')
+    # raise exceptions.MyHttpNotFound('not found file')
 
 
 if __name__ == '__main__':
@@ -106,6 +107,7 @@ if __name__ == '__main__':
 
 
     # 参考：https://blog.csdn.net/baidu_36831253/article/details/78180093
+    # https://viveksb007.github.io/2018/04/uploading-processing-downloading-files-in-flask
     # set FLASK_APP=app.py
     # set FLASK_ENV=development
     # python -m flask run -p 9990
