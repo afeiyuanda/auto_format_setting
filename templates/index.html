@@ -1,0 +1,33 @@
+<!doctype html>
+<title>文库自动化排版</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>文库自动化排版</h1>
+    {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+
+    {% for message in get_flashed_messages() %}
+       <div class=flash>{{ message }}</div>
+    {% endfor %}
+
+    <form  action="{{ url_for('api_upload') }}" method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=上传并处理>
+      </p>
+    </form>
+
+    <hr style="height:1px;border:none;border-top:1px dashed #C0C0C0;" />
+    <p>处理完成的文件会显示在下方，与上传文件名一致； 点击下载按钮下载到本地，下载完成后，可以点击删除，删除掉无用文件</p>
+
+    <table>
+       {% for x in allfileset %}
+        <tr>
+        <td align="left">{{x}}</td>
+        <td align="right">
+            <button type="button"><a href="{{ url_for('download_file', filename=x) }}">下载</a></button>
+            <button type="button"><a href="{{ url_for('deleteFile', filename=x) }}">删除</a></button>
+        </td>
+        </tr>
+       {% endfor %}
+    </table>
+
+</div>
