@@ -1,7 +1,7 @@
 #encoding:utf8
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, send_from_directory, url_for, redirect, flash
-import os, shutil, glob
+import os, shutil, subprocess
 #import os, exceptions, shutil, glob
 
 
@@ -23,7 +23,7 @@ def getAllFile(dir):
     dirset = []
     fileset = []
     for filename in os.listdir(dir):
-        filename = filename.decode('gbk', 'ignore')
+        # filename = filename.decode('gbk', 'ignore')
         filepath = os.path.join(dir, filename)
         if os.path.isdir(filepath):
             filepath = os.path.basename(filepath)
@@ -36,11 +36,21 @@ def getAllFile(dir):
 
 
 def process_file(filename):
-    try:
-        shutil.copyfile(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename), os.path.join(app.root_path, app.config['DOWNLOAD_FOLDER'], filename))
-        return 0  # success
-    except:
-        return 1  # fail
+    # python script/lib_sort_pre.py  uploads/终文库排版模型整合.xlsx temp/
+    temp_outdir = os.path.join(app.root_path, 'temp')
+    if os.path.exists(temp_outdir):
+        shutil.rmtree(temp_outdir)
+    os.makedirs(temp_outdir)
+    p = subprocess.Popen('python script/lib_sort_pre.py %s %s' % (os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename), temp_outdir), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    p.wait()
+    if p.returncode:
+        return 1  # 执行程序报错
+    else:
+        filename_prefix = filename.split('.')[0]
+        shutil.copyfile(os.path.join(temp_outdir, filename_prefix+'_out_result', filename_prefix+'_sort.xlsx'), os.path.join(app.root_path, app.config['DOWNLOAD_FOLDER'], filename_prefix+'_sort.xlsx'))
+        shutil.rmtree(temp_outdir)
+        # shutil.copyfile(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename), os.path.join(app.root_path, app.config['DOWNLOAD_FOLDER'], filename))
+        return 0
 
 
 @app.route('/', methods=['GET', 'POST'], strict_slashes=False)
@@ -65,9 +75,14 @@ def api_upload():
             filename = file.filename.replace(' ', '_')
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             process_flag = 1
-            while process_flag:
+            run_num = 0
+            while process_flag and run_num < 5:
                 process_flag = process_file(filename)
-            flash('Upload and Process Successfully!')
+                run_num += 1
+            if process_flag == 0:
+                flash('Upload and Process Successfully!')
+            else:
+                flash('处理失败，请检查上传文件格式是否正确，或者联系开发人员！')
             allfileset = getAllFile(file_dir)
 
             return redirect(url_for('api_upload', error=error, allfileset=allfileset))
@@ -103,11 +118,13 @@ def download_file(filename):
 
 
 if __name__ == '__main__':
-    app.run(port=9900)
+    # app.run(host='0.0.0.0', debug=True, port=9900)
+    app.run(host='0.0.0.0', port=5000)
 
 
     # 参考：https://blog.csdn.net/baidu_36831253/article/details/78180093
     # https://viveksb007.github.io/2018/04/uploading-processing-downloading-files-in-flask
     # set FLASK_APP=app.py
     # set FLASK_ENV=development
-    # python -m flask run -p 9990
+    # python -m flask run -p 5000
+    # python -m flask run -h 0.0.0.0 -p 9900

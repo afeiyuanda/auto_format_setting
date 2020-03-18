@@ -1,0 +1,12 @@
+cd /share/work2/fuzhl4317/project/sort_lib
+source script/bashrc
+python script/Transform_excel.py  Split -e input_file/终文库排版模型整合.xlsx -o  output_1/modeinput_v0/
+python script/lib_sort_pre.py  output_1/modeinput_v0/Sheet1.txt  output_1/modeoutput_v0
+python  script/Transform_excel.py Merge -I /share/work2/fuzhl4317/project/sort_lib/output_1/modeoutput_v0 -O /share/work2/fuzhl4317/project/sort_lib/output_1/modeoutput_v0_out -P 终文库排版模型整合_out
+
+python script/Transform_excel.py  Split -e uploads/终文库排版模型整合.xlsx -o  downloads/中文输出/
+# python script/lib_sort_pre.py  D:/auto_format_setting/downloads/modeinput_v0/Sheet1.txt D:/auto_format_setting/downloads/modeoutput_v0
+python script/lib_sort_pre.py  downloads/modeinput_v0/Sheet1.txt downloads/modeoutput_v0
+python  script/Transform_excel.py Merge -I downloads/modeoutput_v0 -O downloads/modeoutput_v0_out -P outpu
+
+python script/lib_sort_pre.py  uploads/终文库排版模型整合.xlsx downloads/
