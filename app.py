@@ -76,7 +76,7 @@ def api_upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             process_flag = 1
             run_num = 0
-            while process_flag and run_num < 5:
+            while process_flag and run_num < 2:
                 process_flag = process_file(filename)
                 run_num += 1
             if process_flag == 0:
