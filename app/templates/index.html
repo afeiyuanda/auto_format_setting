@@ -1,13 +1,26 @@
 <!doctype html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>文库自动化排版</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <div class=page>
   <h1>文库自动化排版</h1>
     {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
 
-    {% for message in get_flashed_messages() %}
-       <div class=flash>{{ message }}</div>
-    {% endfor %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <div>
+        {% if messages %}
+        <ul class="entries">
+        {% for category, message in messages %}
+          <li class="{{ category }}">
+            {% autoescape false %}
+              {{ message }}
+             {% endautoescape %}
+          </li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    {% endwith %}
 
     <form  action="{{ url_for('api_upload') }}" method=post enctype=multipart/form-data>
       <p><input type=file name=file>

@@ -1,7 +1,7 @@
 hyb_type	Sampel_type	hyb_No.	cycle
 X	胸水上清	1	4
 P	血浆	1	4
-W	白细胞	2	8
-M	口腔拭子	2	8
+W	白细胞	2	4
+M	口腔拭子	2	4
 T	组织	3	4
 

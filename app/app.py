@@ -44,13 +44,14 @@ def process_file(filename):
     p = subprocess.Popen('python script/lib_sort_pre.py %s %s' % (os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename), temp_outdir), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     p.wait()
     if p.returncode:
-        return 1  # 执行程序报错
+        return [1, p.stderr.read()]  # 执行程序报错
     else:
         filename_prefix = filename.split('.')[0]
-        shutil.copyfile(os.path.join(temp_outdir, filename_prefix+'_out_result', filename_prefix+'_sort.xlsx'), os.path.join(app.root_path, app.config['DOWNLOAD_FOLDER'], filename_prefix+'_sort.xlsx'))
+        if os.path.exists(os.path.join(temp_outdir, filename_prefix+'_out_result', filename_prefix+'_sort.xlsx')):
+            shutil.copyfile(os.path.join(temp_outdir, filename_prefix+'_out_result', filename_prefix+'_sort.xlsx'), os.path.join(app.root_path, app.config['DOWNLOAD_FOLDER'], filename_prefix+'_sort.xlsx'))
         shutil.rmtree(temp_outdir)
         # shutil.copyfile(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename), os.path.join(app.root_path, app.config['DOWNLOAD_FOLDER'], filename))
-        return 0
+        return [0, p.stdout.read()]
 
 
 @app.route('/', methods=['GET', 'POST'], strict_slashes=False)
@@ -77,12 +78,14 @@ def api_upload():
             process_flag = 1
             run_num = 0
             while process_flag and run_num < 2:
-                process_flag = process_file(filename)
+                process_flag, feedback = process_file(filename)
                 run_num += 1
             if process_flag == 0:
-                flash('Upload and Process Successfully!')
+                flash('Upload and Process Successfully!', 'info')
+                flash(feedback.decode('cp936', 'ignore').strip().replace('\r\n', '<br>'), 'info')
             else:
-                flash('处理失败，请检查上传文件格式是否正确，或者联系开发人员！')
+                flash(u'处理失败，请检查上传文件格式是否正确，或者联系开发人员！', 'error')
+                flash(feedback.decode('cp936', 'ignore').strip().replace('\r\n', '<br>'), 'error')
             allfileset = getAllFile(file_dir)
 
             return redirect(url_for('api_upload', error=error, allfileset=allfileset))
